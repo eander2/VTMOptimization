@@ -23,7 +23,7 @@ endif()
 project(VerthashMiner C CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+set(INCLUDE_DIRECTORIES "/op
 # -----------------------------------------------------------------------------
 # Auto configuration for windows msvc platform
 if(MSVC)

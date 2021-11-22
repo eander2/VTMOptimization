@@ -16,7 +16,8 @@
 
 #define CL_TARGET_OPENCL_VERSION 120
 
-#include "../external/CL/opencl.h"
+// #include "../external/CL/opencl.h"
+#include "Cl/opencl.h"
 #include <string>
 
 //-----------------------------------------------------------------------------
