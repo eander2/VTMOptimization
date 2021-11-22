@@ -1511,7 +1511,7 @@ static int verthashOpenCL_thread(void *userdata)
     std::string fileName_sha3precompute = "kernels/sha3_512_precompute_"+deviceName+".bin";
     std::string fileName_sha3_512_256 = "kernels/sha3_512_256_"+deviceName+".bin";
     std::string fileName_verthash = "kernels/verthash_"+deviceName+".bin";
-    std::string filename_megahash = "kernels/megahash.aocox";
+    std::string filename_megahash = "kernels/megahash.aocx";
 #endif
 
 
