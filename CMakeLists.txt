@@ -23,7 +23,7 @@ endif()
 project(VerthashMiner C CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(INCLUDE_DIRECTORIES "/op
+
 # -----------------------------------------------------------------------------
 # Auto configuration for windows msvc platform
 if(MSVC)
@@ -174,10 +174,13 @@ endif()
 find_package( OpenCL REQUIRED )
 if(NOT OpenCL_FOUND)
     message(SEND_ERROR "Failed to find OpenCL library")
-   # return()
+    # return()
 else()
     include_directories(${OpenCL_INCLUDE_DIR})
+    
 endif()
+
+
 
 #------------------------------------------------------------------------------
 # JANSSON
@@ -269,7 +272,6 @@ endif()
 
 
 # -----------------------------------------------------------------------------
-
 target_include_directories(VerthashMiner PRIVATE src)
 target_compile_features(VerthashMiner PUBLIC cxx_std_11)
 
@@ -285,7 +287,7 @@ if(MSVC)
                           wldap32 crypt32 Ws2_32 Normaliz)
 else()
     target_link_libraries(VerthashMiner
-                          ${JANSSON_LIBRARY} ${CURL_LIBRARIES} ${OpenCL_LIBRARY})
+                          ${JANSSON_LIBRARY} ${CURL_LIBRARIES} ${OpenCL_LIBRARY} ${CMAKE_DL_LIBS})
 
     if (UNIX)
         target_link_libraries(VerthashMiner
