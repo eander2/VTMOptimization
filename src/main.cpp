@@ -1200,7 +1200,7 @@ static void restart_threads(void)
 //#define VERTHASH_EXTENDED_VALIDATION
 
 // using binary only kernels
-//#define BINARY_KERNELS
+#define BINARY_KERNELS
 
 //-----------------------------------------------------------------------------
 // OpenCL worker thread
@@ -1511,6 +1511,7 @@ static int verthashOpenCL_thread(void *userdata)
     std::string fileName_sha3precompute = "kernels/sha3_512_precompute_"+deviceName+".bin";
     std::string fileName_sha3_512_256 = "kernels/sha3_512_256_"+deviceName+".bin";
     std::string fileName_verthash = "kernels/verthash_"+deviceName+".bin";
+    std::string filename_megahash = "kernels/megahash.aocox";
 #endif
 
 
@@ -1630,7 +1631,7 @@ static int verthashOpenCL_thread(void *userdata)
     // *SHA3_precompute
     // initial stage. precomputes Keccak/SHA3 states for SHA3 pass
 #ifdef BINARY_KERNELS
-    clprogramSHA3_512_precompute = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, fileName_sha3precompute.c_str()); 
+    clprogramMegahash = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, fileName_megahash.c_str()); 
 #else
     clprogramSHA3_512_precompute = vh::cluCreateProgramFromFile(clContext, cldevice.clId, buildOptions0.c_str(), "kernels/sha3_512_precompute.cl");
 #endif
@@ -1656,7 +1657,7 @@ static int verthashOpenCL_thread(void *userdata)
     // *SHA3_512_256
     // first stage.
 #ifdef BINARY_KERNELS
-    clprogramSHA3_512_256 = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, fileName_sha3_512_256.c_str()); 
+    //clprogramSHA3_512_256 = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, fileName_sha3_512_256.c_str()); 
 #else
     clprogramSHA3_512_256 = vh::cluCreateProgramFromFile(clContext, cldevice.clId, buildOptions0.c_str(), "kernels/sha3_512_256.cl");
 #endif
@@ -1666,7 +1667,7 @@ static int verthashOpenCL_thread(void *userdata)
         goto out; 
     }
 
-    clkernelSHA3_512_256 = clCreateKernel(clprogramSHA3_512_256, "sha3_512_256", &errorCode);
+    clkernelSHA3_512_256 = clCreateKernel(clprogramMegahash, "sha3_512_256", &errorCode);
     if (errorCode != CL_SUCCESS)
     {
         applog(LOG_ERR, "cl_device(%d):Failed to create a SHA3 precompute kernel.", thr_id);
@@ -1684,13 +1685,13 @@ static int verthashOpenCL_thread(void *userdata)
     // second stage
 
 #ifdef BINARY_KERNELS
-    clprogramVerthash = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, fileName_verthash.c_str()); 
+    //clprogramVerthash = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, filename_megahash.c_str()); 
 #else
     clprogramVerthash = vh::cluCreateProgramFromFile(clContext, cldevice.clId, buildOptions.c_str(), "kernels/verthash.cl");
 #endif
 
     if(clprogramVerthash == NULL) { applog(LOG_ERR, "cl_device(%d):Failed to create a Verthash program.", thr_id); goto out; }
-    clkernelVerthash = clCreateKernel(clprogramVerthash, "verthash_4w", &errorCode);
+    clkernelVerthash = clCreateKernel(clprogramMegahash, "verthash_4w", &errorCode);
     if (errorCode != CL_SUCCESS) { applog(LOG_ERR, "cl_device(%d):Failed to create a Verthash kernel. error code: %d", thr_id, errorCode); goto out; }
     errorCode = clSetKernelArg(clkernelVerthash, 0, sizeof(cl_mem), &clmemResults);
     if (errorCode != CL_SUCCESS) { applog(LOG_ERR, "cl_device(%d):Failed to set arg(0) for Verthash kernel. error code: %d", thr_id, errorCode); goto out; }
