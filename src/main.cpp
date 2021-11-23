@@ -19,6 +19,8 @@
 #include <time.h>
 #include <assert.h>
 
+#include <iostream>
+
 #include <vector>
 #include <chrono>
 #include <algorithm>
@@ -1631,17 +1633,18 @@ static int verthashOpenCL_thread(void *userdata)
     // *SHA3_precompute
     // initial stage. precomputes Keccak/SHA3 states for SHA3 pass
 #ifdef BINARY_KERNELS
+    std::cout << "creating program binary " << filename_megahash << std::endl;
     clprogramVerthash = vh::cluCreateProgramWithBinaryFromFile(clContext, cldevice.clId, filename_megahash.c_str()); 
 #else
     clprogramSHA3_512_precompute = vh::cluCreateProgramFromFile(clContext, cldevice.clId, buildOptions0.c_str(), "kernels/sha3_512_precompute.cl");
 #endif
-    if(clprogramSHA3_512_precompute == NULL)
+    if(clprogramVerthash == NULL)
     {
-        applog(LOG_ERR, "cl_device(%d):Failed to create a SHA3 precompute program.", thr_id);
+        applog(LOG_ERR, "Faile 1: cl_device(%d):Failed to create a SHA3 precompute program.", thr_id);
         goto out; 
     }
 
-    clkernelSHA3_512_precompute = clCreateKernel(clprogramSHA3_512_precompute, "sha3_512_precompute", &errorCode);
+    clkernelSHA3_512_precompute = clCreateKernel(clprogramVerthash, "sha3_512_precompute", &errorCode);
     if (errorCode != CL_SUCCESS)
     {
         applog(LOG_ERR, "cl_device(%d):Failed to create a SHA3 precompute kernel.", thr_id);
@@ -1661,11 +1664,11 @@ static int verthashOpenCL_thread(void *userdata)
 #else
     clprogramSHA3_512_256 = vh::cluCreateProgramFromFile(clContext, cldevice.clId, buildOptions0.c_str(), "kernels/sha3_512_256.cl");
 #endif
-    if(clprogramSHA3_512_256 == NULL)
+    /*if(clprogramSHA3_512_256 == NULL)
     {
         applog(LOG_ERR, "cl_device(%d):Failed to create a SHA3 precompute program.", thr_id);
         goto out; 
-    }
+    }*/
 
     clkernelSHA3_512_256 = clCreateKernel(clprogramVerthash, "sha3_512_256", &errorCode);
     if (errorCode != CL_SUCCESS)
@@ -4483,7 +4486,7 @@ int utf8_main(int argc, char *argv[])
 
         // get devices available on this platform
         cl_uint numDeviceIDs = 0;
-        errorCode = clGetDeviceIDs(clplatformIds[i], CL_DEVICE_TYPE_GPU, 0, nullptr, &numDeviceIDs);
+        errorCode = clGetDeviceIDs(clplatformIds[i], CL_DEVICE_TYPE_DEFAULT, 0, nullptr, &numDeviceIDs);
         if (errorCode != CL_SUCCESS || numCLPlatformIDs <= 0)
         {
             applog(LOG_WARNING, "No GPU devices available on platform:");
@@ -4492,7 +4495,7 @@ int utf8_main(int argc, char *argv[])
         }
 
         std::vector<cl_device_id> deviceIds(numDeviceIDs);
-        clGetDeviceIDs(clplatformIds[i], CL_DEVICE_TYPE_GPU, numDeviceIDs, deviceIds.data(), nullptr);
+        clGetDeviceIDs(clplatformIds[i], CL_DEVICE_TYPE_DEFAULT, numDeviceIDs, deviceIds.data(), nullptr);
 
         clu_device_topology_amd topology;
         for (size_t j = 0; j < deviceIds.size(); ++j)
