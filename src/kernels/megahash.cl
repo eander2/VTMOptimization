@@ -74,7 +74,7 @@ __constant ulong keccakf_rndc[24] = {
 //__attribute__((num_compute_units(4)))
 __attribute__((reqd_work_group_size(WORK_SIZE, 1, 1)))
 __attribute__((num_compute_units(4)))
-__kernel void verthash_4w(__global uint2* io_hashes,
+__kernel void verthash_4w(__global uint2* restrict io_hashes,
                           __global kstate2x_t* restrict kStates,
                           __global uint2* restrict memory,
                           const uint in18,
@@ -324,7 +324,7 @@ typedef union {
 
 
 __attribute__((reqd_work_group_size(256, 1, 1)))
-__kernel void sha3_512_256(__global uint* output, __global uint* header, const uint in18, const uint firstNonce)
+__kernel void sha3_512_256(__global uint* restrict output, __global uint* restrict header, const uint in18, const uint firstNonce)
 {
     uint gid = get_global_id(0);
     uint nonce = firstNonce + gid;
@@ -455,7 +455,7 @@ typedef union
 };*/
 
 __attribute__((reqd_work_group_size(1, 1, 1)))
-__kernel void sha3_512_precompute(__global ulong* output, __global uint* header)
+__kernel void sha3_512_precompute(__global ulong* restrict output, __global uint* restrict header)
 {
     uint gid = get_global_id(0);
     uint h0 = header[0]+(gid&7)+1;
